@@ -1,0 +1,10 @@
+{
+  "module_id": "string",
+  "title": { "en": "string", "hi": "string", "pa": "string" },
+  "summary": { "en": "string", "hi": "string", "pa": "string" },
+  "content_markdown": "string",
+  "media": ["string"],
+  "quiz_id": "string",
+  "prereq": ["module_id"],
+  "district_tags": ["string"]
+}

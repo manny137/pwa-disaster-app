@@ -1,0 +1,9 @@
+{
+  "nav": {
+    "map": "Map",
+    "modules": "Modules",
+    "quizzes": "Quizzes",
+    "drills": "Drills",
+    "admin": "Admin"
+  }
+}
