@@ -1,21 +1,89 @@
-import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { Sun, Moon } from "lucide-react"; // if you installed lucide-react; otherwise comment these
+import "../../index.css";
 
-export default function Layout() {
+const NAV_ITEMS = [
+  { label: "Home", path: "/" },
+  { label: "Map", path: "/map" },
+  { label: "Modules", path: "/modules" },
+  { label: "Quizzes", path: "/quizzes" },
+  { label: "Drills", path: "/drills" },
+  { label: "Admin", path: "/admin" }
+];
+
+function ThemeToggle({ theme, setTheme }){
   return (
-    <div style={{minHeight: '100vh', display: 'flex', flexDirection:'column'}}>
-      <nav style={{background:'#111827', color:'#fff', padding:'12px 20px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-        <div style={{fontWeight:700}}>Disaster PWA</div>
-        <div style={{display:'flex', gap:16}}>
-          <Link to="/map">Map</Link>
-          <Link to="/modules">Modules</Link>
-          <Link to="/quizzes">Quizzes</Link>
-          <Link to="/drills">Drills</Link>
-          <Link to="/admin">Admin</Link>
-        </div>
-      </nav>
+    <button
+      aria-label="Toggle theme"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      style={{ display:'flex', alignItems:'center', gap:8, padding:8, borderRadius:10, background:'transparent', border:'1px solid rgba(255,255,255,0.03)' }}
+    >
+      {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+      <span style={{fontSize:13}}>{theme === "dark" ? "Light" : "Dark"}</span>
+    </button>
+  );
+}
 
-      <main style={{flex:1, padding:24}}>
+export default function Layout(){
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem("theme") || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    catch(e){ return 'light' }
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // underline element
+  const underlineRef = useRef(null);
+  const navRef = useRef(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    // place underline under active link
+    const nav = navRef.current;
+    if (!nav) return;
+    const active = nav.querySelector(".nav-item.active");
+    const bar = underlineRef.current;
+    if (!bar || !active) { bar.style.width = '0px'; return; }
+    const rect = active.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
+    const left = rect.left - navRect.left;
+    bar.style.width = `${rect.width}px`;
+    bar.style.transform = `translateX(${left}px)`;
+  }, [location]);
+
+  return (
+    <div>
+      <header className="app-nav">
+        <div className="brand">
+          <div className="logo">DP</div>
+          <h1 style={{margin:0}}>Disaster PWA</h1>
+        </div>
+
+        <div style={{display:'flex', gap:16, alignItems:'center'}}>
+          <nav ref={navRef} className="nav-items" aria-label="Primary Navigation" role="navigation">
+            {NAV_ITEMS.map((n) => {
+              const isActive = n.path === "/" ? location.pathname === "/" : location.pathname.startsWith(n.path);
+              return (
+                <Link to={n.path} key={n.path} style={{textDecoration:'none'}}>
+                  <div className={`nav-item ${isActive ? 'active' : ''}`} role="link" aria-current={isActive ? 'page' : undefined}>
+                    <span className="dot" style={{background: isActive ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : 'transparent'}} />
+                    {n.label}
+                  </div>
+                </Link>
+              );
+            })}
+            <div ref={underlineRef} className="underline-bar" />
+          </nav>
+
+          <ThemeToggle theme={theme} setTheme={setTheme} />
+        </div>
+      </header>
+
+      <main>
         <Outlet />
       </main>
     </div>
