@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Sun, Moon } from "lucide-react"; // if you installed lucide-react; otherwise comment these
 import "../../index.css";
@@ -27,7 +28,7 @@ function ThemeToggle({ theme, setTheme }){
 
 export default function Layout(){
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem("theme") || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    try { return localStorage.getItem("theme") || 'light'; }
     catch(e){ return 'light' }
   });
 
@@ -56,7 +57,7 @@ export default function Layout(){
   }, [location]);
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0.92 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
       <header className="app-nav">
         <div className="brand">
           <div className="logo">DP</div>
@@ -79,13 +80,21 @@ export default function Layout(){
             <div ref={underlineRef} className="underline-bar" />
           </nav>
 
-          <ThemeToggle theme={theme} setTheme={setTheme} />
+          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <Link to="/login" style={{ textDecoration:'none' }}>
+              <button className="btn btn-ghost" style={{ padding:'8px 12px' }}>Login</button>
+            </Link>
+            <Link to="/register" style={{ textDecoration:'none' }}>
+              <button className="btn btn-primary" style={{ padding:'8px 12px' }}>Sign up</button>
+            </Link>
+            <ThemeToggle theme={theme} setTheme={setTheme} />
+          </div>
         </div>
       </header>
 
       <main>
         <Outlet />
       </main>
-    </div>
+    </motion.div>
   );
 }
